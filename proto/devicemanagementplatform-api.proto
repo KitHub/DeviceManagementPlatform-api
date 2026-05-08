@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package devicemanagementplatformapi;
+
+option go_package = "./;devicemanagementplatformapi";
+
+message DeviceInfo {
+    int64 device_id = 1;
+    string device_no = 2;
+    int64 register_time = 3;
+}
+
+service DeviceManagementPlatformAPI {
+    rpc QueryDeviceByNo(QueryDeviceByNoRequest) returns (QueryDeviceByNoResponse);
+    rpc QueryDeviceById(QueryDeviceByIdRequest) returns (QueryDeviceByIdResponse);
+    rpc RegisterDevice(RegisterDeviceRequest) returns (RegisterDeviceResponse);
+}
+
+message QueryDeviceByNoRequest {
+    string device_no = 1;
+}
+
+message QueryDeviceByNoResponse {
+    DeviceInfo device_info = 1;
+}
+
+message QueryDeviceByIdRequest {
+    int64 device_id = 1;
+}
+
+message QueryDeviceByIdResponse {
+    DeviceInfo device_info = 1;
+}
+message RegisterDeviceRequest {
+    string device_no = 1;
+}
+
+message RegisterDeviceResponse {
+    DeviceInfo device_info = 1;
+}
