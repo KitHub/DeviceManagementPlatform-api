@@ -1,0 +1,4 @@
+package devicemanagementplatformapi
+
+func main() {
+}
