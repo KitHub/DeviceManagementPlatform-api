@@ -2,11 +2,12 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v7.34.1
-// source: proto/devicemanagementplatform-api.proto
+// source: devicemanagementplatform-api.proto
 
 package devicemanagementplatformapi
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -32,7 +33,7 @@ type DeviceInfo struct {
 
 func (x *DeviceInfo) Reset() {
 	*x = DeviceInfo{}
-	mi := &file_proto_devicemanagementplatform_api_proto_msgTypes[0]
+	mi := &file_devicemanagementplatform_api_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -44,7 +45,7 @@ func (x *DeviceInfo) String() string {
 func (*DeviceInfo) ProtoMessage() {}
 
 func (x *DeviceInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_devicemanagementplatform_api_proto_msgTypes[0]
+	mi := &file_devicemanagementplatform_api_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -57,7 +58,7 @@ func (x *DeviceInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeviceInfo.ProtoReflect.Descriptor instead.
 func (*DeviceInfo) Descriptor() ([]byte, []int) {
-	return file_proto_devicemanagementplatform_api_proto_rawDescGZIP(), []int{0}
+	return file_devicemanagementplatform_api_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *DeviceInfo) GetDeviceId() int64 {
@@ -90,7 +91,7 @@ type QueryDeviceByNoRequest struct {
 
 func (x *QueryDeviceByNoRequest) Reset() {
 	*x = QueryDeviceByNoRequest{}
-	mi := &file_proto_devicemanagementplatform_api_proto_msgTypes[1]
+	mi := &file_devicemanagementplatform_api_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -102,7 +103,7 @@ func (x *QueryDeviceByNoRequest) String() string {
 func (*QueryDeviceByNoRequest) ProtoMessage() {}
 
 func (x *QueryDeviceByNoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_devicemanagementplatform_api_proto_msgTypes[1]
+	mi := &file_devicemanagementplatform_api_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -115,7 +116,7 @@ func (x *QueryDeviceByNoRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryDeviceByNoRequest.ProtoReflect.Descriptor instead.
 func (*QueryDeviceByNoRequest) Descriptor() ([]byte, []int) {
-	return file_proto_devicemanagementplatform_api_proto_rawDescGZIP(), []int{1}
+	return file_devicemanagementplatform_api_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *QueryDeviceByNoRequest) GetDeviceNo() string {
@@ -134,7 +135,7 @@ type QueryDeviceByNoResponse struct {
 
 func (x *QueryDeviceByNoResponse) Reset() {
 	*x = QueryDeviceByNoResponse{}
-	mi := &file_proto_devicemanagementplatform_api_proto_msgTypes[2]
+	mi := &file_devicemanagementplatform_api_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -146,7 +147,7 @@ func (x *QueryDeviceByNoResponse) String() string {
 func (*QueryDeviceByNoResponse) ProtoMessage() {}
 
 func (x *QueryDeviceByNoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_devicemanagementplatform_api_proto_msgTypes[2]
+	mi := &file_devicemanagementplatform_api_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -159,7 +160,7 @@ func (x *QueryDeviceByNoResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryDeviceByNoResponse.ProtoReflect.Descriptor instead.
 func (*QueryDeviceByNoResponse) Descriptor() ([]byte, []int) {
-	return file_proto_devicemanagementplatform_api_proto_rawDescGZIP(), []int{2}
+	return file_devicemanagementplatform_api_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *QueryDeviceByNoResponse) GetDeviceInfo() *DeviceInfo {
@@ -178,7 +179,7 @@ type QueryDeviceByIdRequest struct {
 
 func (x *QueryDeviceByIdRequest) Reset() {
 	*x = QueryDeviceByIdRequest{}
-	mi := &file_proto_devicemanagementplatform_api_proto_msgTypes[3]
+	mi := &file_devicemanagementplatform_api_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -190,7 +191,7 @@ func (x *QueryDeviceByIdRequest) String() string {
 func (*QueryDeviceByIdRequest) ProtoMessage() {}
 
 func (x *QueryDeviceByIdRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_devicemanagementplatform_api_proto_msgTypes[3]
+	mi := &file_devicemanagementplatform_api_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -203,7 +204,7 @@ func (x *QueryDeviceByIdRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryDeviceByIdRequest.ProtoReflect.Descriptor instead.
 func (*QueryDeviceByIdRequest) Descriptor() ([]byte, []int) {
-	return file_proto_devicemanagementplatform_api_proto_rawDescGZIP(), []int{3}
+	return file_devicemanagementplatform_api_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *QueryDeviceByIdRequest) GetDeviceId() int64 {
@@ -222,7 +223,7 @@ type QueryDeviceByIdResponse struct {
 
 func (x *QueryDeviceByIdResponse) Reset() {
 	*x = QueryDeviceByIdResponse{}
-	mi := &file_proto_devicemanagementplatform_api_proto_msgTypes[4]
+	mi := &file_devicemanagementplatform_api_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -234,7 +235,7 @@ func (x *QueryDeviceByIdResponse) String() string {
 func (*QueryDeviceByIdResponse) ProtoMessage() {}
 
 func (x *QueryDeviceByIdResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_devicemanagementplatform_api_proto_msgTypes[4]
+	mi := &file_devicemanagementplatform_api_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -247,7 +248,7 @@ func (x *QueryDeviceByIdResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryDeviceByIdResponse.ProtoReflect.Descriptor instead.
 func (*QueryDeviceByIdResponse) Descriptor() ([]byte, []int) {
-	return file_proto_devicemanagementplatform_api_proto_rawDescGZIP(), []int{4}
+	return file_devicemanagementplatform_api_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *QueryDeviceByIdResponse) GetDeviceInfo() *DeviceInfo {
@@ -266,7 +267,7 @@ type RegisterDeviceRequest struct {
 
 func (x *RegisterDeviceRequest) Reset() {
 	*x = RegisterDeviceRequest{}
-	mi := &file_proto_devicemanagementplatform_api_proto_msgTypes[5]
+	mi := &file_devicemanagementplatform_api_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -278,7 +279,7 @@ func (x *RegisterDeviceRequest) String() string {
 func (*RegisterDeviceRequest) ProtoMessage() {}
 
 func (x *RegisterDeviceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_devicemanagementplatform_api_proto_msgTypes[5]
+	mi := &file_devicemanagementplatform_api_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -291,7 +292,7 @@ func (x *RegisterDeviceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterDeviceRequest.ProtoReflect.Descriptor instead.
 func (*RegisterDeviceRequest) Descriptor() ([]byte, []int) {
-	return file_proto_devicemanagementplatform_api_proto_rawDescGZIP(), []int{5}
+	return file_devicemanagementplatform_api_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *RegisterDeviceRequest) GetDeviceNo() string {
@@ -310,7 +311,7 @@ type RegisterDeviceResponse struct {
 
 func (x *RegisterDeviceResponse) Reset() {
 	*x = RegisterDeviceResponse{}
-	mi := &file_proto_devicemanagementplatform_api_proto_msgTypes[6]
+	mi := &file_devicemanagementplatform_api_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -322,7 +323,7 @@ func (x *RegisterDeviceResponse) String() string {
 func (*RegisterDeviceResponse) ProtoMessage() {}
 
 func (x *RegisterDeviceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_devicemanagementplatform_api_proto_msgTypes[6]
+	mi := &file_devicemanagementplatform_api_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -335,7 +336,7 @@ func (x *RegisterDeviceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterDeviceResponse.ProtoReflect.Descriptor instead.
 func (*RegisterDeviceResponse) Descriptor() ([]byte, []int) {
-	return file_proto_devicemanagementplatform_api_proto_rawDescGZIP(), []int{6}
+	return file_devicemanagementplatform_api_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *RegisterDeviceResponse) GetDeviceInfo() *DeviceInfo {
@@ -345,28 +346,28 @@ func (x *RegisterDeviceResponse) GetDeviceInfo() *DeviceInfo {
 	return nil
 }
 
-var File_proto_devicemanagementplatform_api_proto protoreflect.FileDescriptor
+var File_devicemanagementplatform_api_proto protoreflect.FileDescriptor
 
-const file_proto_devicemanagementplatform_api_proto_rawDesc = "" +
+const file_devicemanagementplatform_api_proto_rawDesc = "" +
 	"\n" +
-	"(proto/devicemanagementplatform-api.proto\x12\x1bdevicemanagementplatformapi\"k\n" +
+	"\"devicemanagementplatform-api.proto\x12\x1bdevicemanagementplatformapi\x1a\x1bbuf/validate/validate.proto\"k\n" +
 	"\n" +
 	"DeviceInfo\x12\x1b\n" +
 	"\tdevice_id\x18\x01 \x01(\x03R\bdeviceId\x12\x1b\n" +
 	"\tdevice_no\x18\x02 \x01(\tR\bdeviceNo\x12#\n" +
-	"\rregister_time\x18\x03 \x01(\x03R\fregisterTime\"5\n" +
-	"\x16QueryDeviceByNoRequest\x12\x1b\n" +
-	"\tdevice_no\x18\x01 \x01(\tR\bdeviceNo\"c\n" +
+	"\rregister_time\x18\x03 \x01(\x03R\fregisterTime\"@\n" +
+	"\x16QueryDeviceByNoRequest\x12&\n" +
+	"\tdevice_no\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18dR\bdeviceNo\"c\n" +
 	"\x17QueryDeviceByNoResponse\x12H\n" +
 	"\vdevice_info\x18\x01 \x01(\v2'.devicemanagementplatformapi.DeviceInfoR\n" +
-	"deviceInfo\"5\n" +
-	"\x16QueryDeviceByIdRequest\x12\x1b\n" +
-	"\tdevice_id\x18\x01 \x01(\x03R\bdeviceId\"c\n" +
+	"deviceInfo\">\n" +
+	"\x16QueryDeviceByIdRequest\x12$\n" +
+	"\tdevice_id\x18\x01 \x01(\x03B\a\xbaH\x04\"\x02(\x00R\bdeviceId\"c\n" +
 	"\x17QueryDeviceByIdResponse\x12H\n" +
 	"\vdevice_info\x18\x01 \x01(\v2'.devicemanagementplatformapi.DeviceInfoR\n" +
-	"deviceInfo\"4\n" +
-	"\x15RegisterDeviceRequest\x12\x1b\n" +
-	"\tdevice_no\x18\x01 \x01(\tR\bdeviceNo\"b\n" +
+	"deviceInfo\"?\n" +
+	"\x15RegisterDeviceRequest\x12&\n" +
+	"\tdevice_no\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18dR\bdeviceNo\"b\n" +
 	"\x16RegisterDeviceResponse\x12H\n" +
 	"\vdevice_info\x18\x01 \x01(\v2'.devicemanagementplatformapi.DeviceInfoR\n" +
 	"deviceInfo2\x94\x03\n" +
@@ -376,19 +377,19 @@ const file_proto_devicemanagementplatform_api_proto_rawDesc = "" +
 	"\x0eRegisterDevice\x122.devicemanagementplatformapi.RegisterDeviceRequest\x1a3.devicemanagementplatformapi.RegisterDeviceResponseB Z\x1e./;devicemanagementplatformapib\x06proto3"
 
 var (
-	file_proto_devicemanagementplatform_api_proto_rawDescOnce sync.Once
-	file_proto_devicemanagementplatform_api_proto_rawDescData []byte
+	file_devicemanagementplatform_api_proto_rawDescOnce sync.Once
+	file_devicemanagementplatform_api_proto_rawDescData []byte
 )
 
-func file_proto_devicemanagementplatform_api_proto_rawDescGZIP() []byte {
-	file_proto_devicemanagementplatform_api_proto_rawDescOnce.Do(func() {
-		file_proto_devicemanagementplatform_api_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_devicemanagementplatform_api_proto_rawDesc), len(file_proto_devicemanagementplatform_api_proto_rawDesc)))
+func file_devicemanagementplatform_api_proto_rawDescGZIP() []byte {
+	file_devicemanagementplatform_api_proto_rawDescOnce.Do(func() {
+		file_devicemanagementplatform_api_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_devicemanagementplatform_api_proto_rawDesc), len(file_devicemanagementplatform_api_proto_rawDesc)))
 	})
-	return file_proto_devicemanagementplatform_api_proto_rawDescData
+	return file_devicemanagementplatform_api_proto_rawDescData
 }
 
-var file_proto_devicemanagementplatform_api_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
-var file_proto_devicemanagementplatform_api_proto_goTypes = []any{
+var file_devicemanagementplatform_api_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_devicemanagementplatform_api_proto_goTypes = []any{
 	(*DeviceInfo)(nil),              // 0: devicemanagementplatformapi.DeviceInfo
 	(*QueryDeviceByNoRequest)(nil),  // 1: devicemanagementplatformapi.QueryDeviceByNoRequest
 	(*QueryDeviceByNoResponse)(nil), // 2: devicemanagementplatformapi.QueryDeviceByNoResponse
@@ -397,7 +398,7 @@ var file_proto_devicemanagementplatform_api_proto_goTypes = []any{
 	(*RegisterDeviceRequest)(nil),   // 5: devicemanagementplatformapi.RegisterDeviceRequest
 	(*RegisterDeviceResponse)(nil),  // 6: devicemanagementplatformapi.RegisterDeviceResponse
 }
-var file_proto_devicemanagementplatform_api_proto_depIdxs = []int32{
+var file_devicemanagementplatform_api_proto_depIdxs = []int32{
 	0, // 0: devicemanagementplatformapi.QueryDeviceByNoResponse.device_info:type_name -> devicemanagementplatformapi.DeviceInfo
 	0, // 1: devicemanagementplatformapi.QueryDeviceByIdResponse.device_info:type_name -> devicemanagementplatformapi.DeviceInfo
 	0, // 2: devicemanagementplatformapi.RegisterDeviceResponse.device_info:type_name -> devicemanagementplatformapi.DeviceInfo
@@ -414,26 +415,26 @@ var file_proto_devicemanagementplatform_api_proto_depIdxs = []int32{
 	0, // [0:3] is the sub-list for field type_name
 }
 
-func init() { file_proto_devicemanagementplatform_api_proto_init() }
-func file_proto_devicemanagementplatform_api_proto_init() {
-	if File_proto_devicemanagementplatform_api_proto != nil {
+func init() { file_devicemanagementplatform_api_proto_init() }
+func file_devicemanagementplatform_api_proto_init() {
+	if File_devicemanagementplatform_api_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_devicemanagementplatform_api_proto_rawDesc), len(file_proto_devicemanagementplatform_api_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_devicemanagementplatform_api_proto_rawDesc), len(file_devicemanagementplatform_api_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_proto_devicemanagementplatform_api_proto_goTypes,
-		DependencyIndexes: file_proto_devicemanagementplatform_api_proto_depIdxs,
-		MessageInfos:      file_proto_devicemanagementplatform_api_proto_msgTypes,
+		GoTypes:           file_devicemanagementplatform_api_proto_goTypes,
+		DependencyIndexes: file_devicemanagementplatform_api_proto_depIdxs,
+		MessageInfos:      file_devicemanagementplatform_api_proto_msgTypes,
 	}.Build()
-	File_proto_devicemanagementplatform_api_proto = out.File
-	file_proto_devicemanagementplatform_api_proto_goTypes = nil
-	file_proto_devicemanagementplatform_api_proto_depIdxs = nil
+	File_devicemanagementplatform_api_proto = out.File
+	file_devicemanagementplatform_api_proto_goTypes = nil
+	file_devicemanagementplatform_api_proto_depIdxs = nil
 }
