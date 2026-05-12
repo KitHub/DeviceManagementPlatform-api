@@ -4,16 +4,42 @@ import (
 	"DeviceManagementPlatform-api/config"
 	"context"
 	"log/slog"
+	"time"
 
 	"gopkg.in/natefinch/lumberjack.v2"
+	"xorm.io/xorm"
 )
 
-func InitService(ctx context.Context, configEntity config.ConfigEntity) error {
-	InitLog(ctx, configEntity.LogConfig)
-	return nil
+var serviceLogger *slog.Logger
+
+type ServiceContext struct {
+	Logger *slog.Logger
+	DB     *xorm.Engine
 }
 
-func InitLog(ctx context.Context, logConfig *config.LogConfigEntity) {
+var serviceCtx *ServiceContext
+
+func InitService(ctx context.Context, configEntity config.ConfigEntity) (
+	serviceCtx *ServiceContext, err error) {
+	logger, err := InitLog(ctx, configEntity.LogConfig)
+	if err != nil {
+		slog.ErrorContext(ctx, "init log failed", "error", err)
+		return nil, err
+	}
+	db, err := InitDB(ctx, configEntity.DBConfig, logger)
+	if err != nil {
+		slog.ErrorContext(ctx, "init db failed", "error", err)
+		return nil, err
+	}
+	serviceCtx = &ServiceContext{
+		Logger: logger,
+		DB:     db,
+	}
+	return serviceCtx, nil
+}
+
+func InitLog(ctx context.Context, logConfig *config.LogConfigEntity) (
+	*slog.Logger, error) {
 	log := &lumberjack.Logger{
 		Filename:   logConfig.Filename,   // 日志文件路径
 		MaxSize:    logConfig.MaxSize,    // 每个日志文件的最大大小（以MB为单位）
@@ -22,6 +48,34 @@ func InitLog(ctx context.Context, logConfig *config.LogConfigEntity) {
 		Compress:   logConfig.Compress,   // 是否压缩旧文件
 		LocalTime:  logConfig.LocalTime,  // 是否使用本地时间戳
 	}
-	textLogger := slog.New(slog.NewTextHandler(log, nil))
-	slog.SetDefault(textLogger)
+	serviceLogger := slog.New(slog.NewTextHandler(log, nil))
+	slog.SetDefault(serviceLogger)
+	return serviceLogger, nil
+}
+
+func InitDB(ctx context.Context, dbConfig *config.DBConfigEntity,
+	logger *slog.Logger) (*xorm.Engine, error) {
+	engine, err := xorm.NewEngine(dbConfig.DriverName, dbConfig.DataSourceName)
+	if err != nil {
+		slog.ErrorContext(ctx, "Failed to initialize database connection",
+			"error", err)
+		return nil, err
+	}
+
+	if logger != nil {
+		engine.SetLogger(logger)
+	}
+	engine.ShowSQL(dbConfig.ShowSQL)
+	engine.SetMaxIdleConns(dbConfig.MaxIdleConns)
+	engine.SetMaxOpenConns(dbConfig.MaxOpenConns)
+	engine.SetConnMaxLifetime(
+		time.Duration(dbConfig.ConnMaxLifetime) * time.Second)
+
+	err = engine.PingContext(ctx)
+	if err != nil {
+		slog.ErrorContext(ctx, "Failed to ping database", "error", err)
+		return nil, err
+	}
+
+	return engine, nil
 }

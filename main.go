@@ -20,7 +20,7 @@ func main() {
 		panic(err)
 	}
 
-	err = service.InitService(ctx, configEntity)
+	_, err = service.InitService(ctx, configEntity)
 	if err != nil {
 		panic(err)
 	}
