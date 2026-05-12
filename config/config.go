@@ -10,7 +10,7 @@ import (
 	"go.yaml.in/yaml/v3"
 )
 
-var configFile string = "config.yaml"
+var configFile string = "./server.yaml"
 var configFileLock sync.RWMutex = sync.RWMutex{}
 var gConfigEntity ConfigEntity = ConfigEntity{}
 var configReadWriteLock sync.RWMutex = sync.RWMutex{}
@@ -61,53 +61,54 @@ func SetRefreshInterval(interval time.Duration) {
 func loadConfig(ctx context.Context, configFile string) (ConfigEntity, error) {
 	dataBytes, err := os.ReadFile(configFile)
 	if err != nil {
-		slog.ErrorContext(ctx, "read config failed, file=%v, err=%v",
-			configFile, err)
+		slog.ErrorContext(ctx, "read config failed", "configFile",
+			configFile, "err", err)
 		return ConfigEntity{}, err
 	}
 
 	config := ConfigEntity{}
 	err = yaml.Unmarshal(dataBytes, &config)
 	if err != nil {
-		slog.ErrorContext(ctx, "parse config failed, file=%v, err=%v",
-			configFile, err)
+		slog.ErrorContext(ctx, "parse config failed", "configFile",
+			configFile, "err", err)
 		return ConfigEntity{}, err
 	}
 	configMarshalBytes, _ := yaml.Marshal(config)
-	slog.InfoContext(ctx, "load config success, file=%v, config=%v",
-		configFile, string(configMarshalBytes))
+	slog.InfoContext(ctx, "load config success", "configFile",
+		configFile, "config", string(configMarshalBytes))
 	return config, nil
-}
-
-func init() {
-	// reload config every refreshInterval
-	go func() {
-		for {
-			timer.Reset(getRefreshInterval())
-			tmpConfigFile := getConfigFile()
-			slog.InfoContext(context.Background(),
-				"start to reload config, file=%v, refreshInterval=%v",
-				tmpConfigFile, getRefreshInterval())
-			<-timer.C
-			_, err := LoadConfig(context.Background(), tmpConfigFile)
-			if err != nil {
-				slog.ErrorContext(context.Background(),
-					"reload config failed, file=%v, err=%v",
-					tmpConfigFile, err)
-			}
-		}
-	}()
 }
 
 // LoadConfig loads the config file and returns the ConfigEntity struct.
 // Return the config entity and error if any, otherwise return nil error.
 // The config file is expected to be in yaml format.
+// After loading the config, it will set the global config entity and start a
+// goroutine to reload the config every refreshInterval.
 func LoadConfig(ctx context.Context, configFile string) (ConfigEntity, error) {
 	config, err := loadConfig(ctx, configFile)
 	if err != nil {
 		return ConfigEntity{}, err
 	}
 	setGConfigEntity(config)
+
+	// start a goroutine to reload config every refreshInterval
+	go func() {
+		for {
+			timer.Reset(getRefreshInterval())
+			tmpConfigFile := getConfigFile()
+			slog.InfoContext(context.Background(),
+				"start to reload config", "configFile", tmpConfigFile,
+				"refreshInterval", getRefreshInterval())
+			<-timer.C
+			_, err := LoadConfig(context.Background(), tmpConfigFile)
+			if err != nil {
+				slog.ErrorContext(context.Background(),
+					"reload config failed", "configFile", tmpConfigFile,
+					"err", err)
+			}
+		}
+	}()
+
 	return config, nil
 }
 
