@@ -61,21 +61,22 @@ func SetRefreshInterval(interval time.Duration) {
 func loadConfig(ctx context.Context, configFile string) (ConfigEntity, error) {
 	dataBytes, err := os.ReadFile(configFile)
 	if err != nil {
-		slog.ErrorContext(ctx, "read config failed", "configFile",
-			configFile, "err", err)
+		slog.ErrorContext(ctx, "read config failed",
+			slog.String("configFile", configFile), slog.Any("err", err))
 		return ConfigEntity{}, err
 	}
 
 	config := ConfigEntity{}
 	err = yaml.Unmarshal(dataBytes, &config)
 	if err != nil {
-		slog.ErrorContext(ctx, "parse config failed", "configFile",
-			configFile, "err", err)
+		slog.ErrorContext(ctx, "parse config failed",
+			slog.String("configFile", configFile), slog.Any("err", err))
 		return ConfigEntity{}, err
 	}
 	configMarshalBytes, _ := yaml.Marshal(config)
-	slog.InfoContext(ctx, "load config success", "configFile",
-		configFile, "config", string(configMarshalBytes))
+	slog.InfoContext(ctx, "load config success",
+		slog.String("configFile", configFile),
+		slog.String("config", string(configMarshalBytes)))
 	return config, nil
 }
 
@@ -97,14 +98,16 @@ func LoadConfig(ctx context.Context, configFile string) (ConfigEntity, error) {
 			timer.Reset(getRefreshInterval())
 			tmpConfigFile := getConfigFile()
 			slog.InfoContext(context.Background(),
-				"start to reload config", "configFile", tmpConfigFile,
-				"refreshInterval", getRefreshInterval())
+				"start to reload config",
+				slog.String("configFile", tmpConfigFile),
+				slog.Duration("refreshInterval", getRefreshInterval()))
 			<-timer.C
 			_, err := LoadConfig(context.Background(), tmpConfigFile)
 			if err != nil {
 				slog.ErrorContext(context.Background(),
-					"reload config failed", "configFile", tmpConfigFile,
-					"err", err)
+					"reload config failed",
+					slog.String("configFile", tmpConfigFile),
+					slog.Any("err", err))
 			}
 		}
 	}()

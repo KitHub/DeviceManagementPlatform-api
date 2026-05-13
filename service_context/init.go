@@ -25,12 +25,12 @@ func InitServiceContext(ctx context.Context, configEntity config.ConfigEntity) (
 	serviceCtx *ServiceContext, err error) {
 	logger, err := initLog(ctx, configEntity.LogConfig)
 	if err != nil {
-		slog.ErrorContext(ctx, "init log failed", "error", err)
+		slog.ErrorContext(ctx, "init log failed", slog.Any("error", err))
 		return nil, err
 	}
 	db, err := initDB(ctx, configEntity.DBConfig, logger)
 	if err != nil {
-		slog.ErrorContext(ctx, "init db failed", "error", err)
+		slog.ErrorContext(ctx, "init db failed", slog.Any("error", err))
 		return nil, err
 	}
 
@@ -64,7 +64,7 @@ func initDB(ctx context.Context, dbConfig *config.DBConfigEntity,
 	engine, err := xorm.NewEngine(dbConfig.DriverName, dbConfig.DataSourceName)
 	if err != nil {
 		slog.ErrorContext(ctx, "Failed to initialize database connection",
-			"error", err)
+			slog.Any("error", err))
 		return nil, err
 	}
 
@@ -79,7 +79,7 @@ func initDB(ctx context.Context, dbConfig *config.DBConfigEntity,
 
 	err = engine.PingContext(ctx)
 	if err != nil {
-		slog.ErrorContext(ctx, "Failed to ping database", "error", err)
+		slog.ErrorContext(ctx, "Failed to ping database", slog.Any("error", err))
 		return nil, err
 	}
 
