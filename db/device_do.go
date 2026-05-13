@@ -2,7 +2,7 @@ package db
 
 import "time"
 
-type Device struct {
+type DeviceDO struct {
 	Id           int64     `xorm:"id,pk,autoincr"`
 	DeviceNo     string    `xorm:"device_no"`
 	RegisterTime time.Time `xorm:"register_time"`
@@ -10,6 +10,6 @@ type Device struct {
 	UpdateTime   time.Time `xorm:"update_time"`
 }
 
-func (d *Device) TableName() string {
+func (d *DeviceDO) TableName() string {
 	return "device"
 }

@@ -2,7 +2,7 @@ package main
 
 import (
 	"DeviceManagementPlatform-api/config"
-	"DeviceManagementPlatform-api/service"
+	servicecontext "DeviceManagementPlatform-api/service_context"
 	"context"
 	"flag"
 )
@@ -20,7 +20,7 @@ func main() {
 		panic(err)
 	}
 
-	_, err = service.InitService(ctx, configEntity)
+	_, err = servicecontext.InitServiceContext(ctx, configEntity)
 	if err != nil {
 		panic(err)
 	}

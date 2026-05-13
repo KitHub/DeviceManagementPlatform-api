@@ -4,21 +4,28 @@ import (
 	"context"
 	"errors"
 	"log/slog"
-	"time"
+	"sync"
 
 	_ "github.com/go-sql-driver/mysql"
 	"xorm.io/xorm"
 )
 
-func InsertDevice(ctx context.Context, session *xorm.Session,
-	deviceNo string) (*Device, error) {
-	now := time.Now()
-	device := &Device{
-		DeviceNo:     deviceNo,
-		CreateTime:   now,
-		UpdateTime:   now,
-		RegisterTime: now,
-	}
+type DeviceDAO struct {
+}
+
+var deviceDAO *DeviceDAO
+var once sync.Once
+
+func NewDeviceDAO(dbEngine *xorm.Engine) *DeviceDAO {
+	once.Do(func() {
+		deviceDAO = &DeviceDAO{}
+	})
+	return deviceDAO
+}
+
+func (dao *DeviceDAO) InsertDevice(ctx context.Context,
+	session *xorm.Session, device *DeviceDO) (*DeviceDO, error) {
+
 	slog.InfoContext(ctx, "Inserting device", "device", device)
 	rowsEffected, err := session.Insert(device)
 	if err != nil {
@@ -38,9 +45,9 @@ func InsertDevice(ctx context.Context, session *xorm.Session,
 	return device, nil
 }
 
-func QueryDeviceByDeviceNo(ctx context.Context, session *xorm.Session,
-	deviceNo string) (*Device, error) {
-	device := &Device{}
+func (dao *DeviceDAO) QueryDeviceByDeviceNo(ctx context.Context,
+	session *xorm.Session, deviceNo string) (*DeviceDO, error) {
+	device := &DeviceDO{}
 	has, err := session.Where("device_no = ?", deviceNo).Get(device)
 	if err != nil {
 		slog.ErrorContext(ctx, "query device by device_no failed", "device_no",
@@ -55,9 +62,9 @@ func QueryDeviceByDeviceNo(ctx context.Context, session *xorm.Session,
 	return device, nil
 }
 
-func QueryDeviceByDeviceId(ctx context.Context, session *xorm.Session,
-	deviceId int64) (*Device, error) {
-	device := &Device{}
+func (dao *DeviceDAO) QueryDeviceByDeviceId(ctx context.Context,
+	session *xorm.Session, deviceId int64) (*DeviceDO, error) {
+	device := &DeviceDO{}
 	has, err := session.Where("id = ?", deviceId).Get(device)
 	if err != nil {
 		slog.ErrorContext(ctx, "query device by device_id failed", "device_id",
