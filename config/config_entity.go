@@ -9,7 +9,6 @@ type DBConfigEntity struct {
 	ConnMaxLifetime int    `yaml:"conn_max_lifetime"` // 连接最大生命周期（以秒为单位）
 	ShowSQL         bool   `yaml:"show_sql"`          // 是否显示SQL语句
 	LogLevel        string `yaml:"log_level"`         // 日志级别（如：debug、info、warn、error）
-
 }
 
 type LogConfigEntity struct {

@@ -23,12 +23,12 @@ var serviceCtx *ServiceContext
 
 func InitServiceContext(ctx context.Context, configEntity config.ConfigEntity) (
 	serviceCtx *ServiceContext, err error) {
-	logger, err := InitLog(ctx, configEntity.LogConfig)
+	logger, err := initLog(ctx, configEntity.LogConfig)
 	if err != nil {
 		slog.ErrorContext(ctx, "init log failed", "error", err)
 		return nil, err
 	}
-	db, err := InitDB(ctx, configEntity.DBConfig, logger)
+	db, err := initDB(ctx, configEntity.DBConfig, logger)
 	if err != nil {
 		slog.ErrorContext(ctx, "init db failed", "error", err)
 		return nil, err
@@ -44,7 +44,7 @@ func InitServiceContext(ctx context.Context, configEntity config.ConfigEntity) (
 	return serviceCtx, nil
 }
 
-func InitLog(ctx context.Context, logConfig *config.LogConfigEntity) (
+func initLog(ctx context.Context, logConfig *config.LogConfigEntity) (
 	*slog.Logger, error) {
 	log := &lumberjack.Logger{
 		Filename:   logConfig.Filename,   // 日志文件路径
@@ -59,7 +59,7 @@ func InitLog(ctx context.Context, logConfig *config.LogConfigEntity) (
 	return serviceLogger, nil
 }
 
-func InitDB(ctx context.Context, dbConfig *config.DBConfigEntity,
+func initDB(ctx context.Context, dbConfig *config.DBConfigEntity,
 	logger *slog.Logger) (*xorm.Engine, error) {
 	engine, err := xorm.NewEngine(dbConfig.DriverName, dbConfig.DataSourceName)
 	if err != nil {
