@@ -80,6 +80,7 @@ func main() {
 	for _, srv := range servers {
 		closers = append(closers, srv)
 	}
+	closers = append(closers, serviceContext.DB)
 	addShutdownHook(ctx, closers)
 }
 
