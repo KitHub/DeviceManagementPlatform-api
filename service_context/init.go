@@ -104,20 +104,3 @@ func initDB(ctx context.Context, dbConfig *config.DBConfigEntity,
 
 	return engine, nil
 }
-
-/*
-Debug(v ...interface{})
-	Debugf(format string, v ...interface{})
-	Error(v ...interface{})
-	Errorf(format string, v ...interface{})
-	Info(v ...interface{})
-	Infof(format string, v ...interface{})
-	Warn(v ...interface{})
-	Warnf(format string, v ...interface{})
-
-	Level() LogLevel
-	SetLevel(l LogLevel)
-
-	ShowSQL(show ...bool)
-	IsShowSQL() bool
-*/
