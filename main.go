@@ -2,34 +2,25 @@ package main
 
 import (
 	"DeviceManagementPlatform-api/config"
-	servicecontext "DeviceManagementPlatform-api/service_context"
+	servicecontext "DeviceManagementPlatform-api/servicecontext"
 	"context"
 	"flag"
 	"fmt"
-	"io"
 	"log/slog"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/KitHub/protocols/devicemanagementplatformapi"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type ServerArgs struct {
 	ConfigFile string
-}
-
-type wrappedServer struct {
-	*grpc.Server
-	listerners net.Listener
-}
-
-// Close implements [io.Closer].
-func (w *wrappedServer) Close() error {
-	w.GracefulStop()
-	return nil
 }
 
 func main() {
@@ -57,31 +48,14 @@ func main() {
 	}
 
 	// init server
-	servers, err := initServer(ctx, &configEntity, serviceContext)
+	err = initServer(ctx, &configEntity, serviceContext)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to init server",
 			slog.String("error", err.Error()))
 		panic(err)
 	}
 
-	// start server
-	for _, srv := range servers {
-		go func() {
-			err := srv.Serve(srv.listerners)
-			if err != nil {
-				slog.ErrorContext(ctx, "failed to serve",
-					slog.String("error", err.Error()))
-				panic(err)
-			}
-		}()
-	}
-
-	closers := make([]io.Closer, 0)
-	for _, srv := range servers {
-		closers = append(closers, srv)
-	}
-	closers = append(closers, serviceContext.DB)
-	addShutdownHook(ctx, closers)
+	shutdownGracefully(ctx, servicecontext.GetShutdownCallbacks())
 }
 
 func parepareArgs(ctx context.Context) ServerArgs {
@@ -95,40 +69,116 @@ func parepareArgs(ctx context.Context) ServerArgs {
 }
 
 func initServer(ctx context.Context, serviceConfig *config.ConfigEntity,
-	serviceContext *servicecontext.ServiceContext) (
-	servers []*wrappedServer, err error) {
+	serviceContext *servicecontext.ServiceContext) (err error) {
 
 	slog.InfoContext(ctx, "init servers")
 	for _, serverConfig := range serviceConfig.Servers {
-		hostAndPort := fmt.Sprintf("%s:%d",
-			serverConfig.Host, serverConfig.Port)
-		slog.InfoContext(ctx, "init server",
-			slog.String("host_and_port", hostAndPort),
-			slog.String("type", serverConfig.Type))
-		listener, err := net.Listen("tcp", hostAndPort)
-		if err != nil {
-			slog.ErrorContext(ctx, "failed to listen",
-				slog.String("error", err.Error()))
-			return nil, err
+		switch serverConfig.Type {
+		case "rpc":
+			{
+				_, err := initRpcServer(ctx, serverConfig, serviceContext)
+				if err != nil {
+					slog.ErrorContext(ctx, "failed to init RPC server",
+						slog.String("error", err.Error()))
+					return err
+				}
+			}
+		case "http":
+			{
+				_, err := initHttpServer(ctx, serverConfig, serviceContext)
+				if err != nil {
+					slog.ErrorContext(ctx, "failed to init HTTP server",
+						slog.String("error", err.Error()))
+					return err
+				}
+			}
+		default:
+			{
+				slog.ErrorContext(ctx, "unsupported server type",
+					slog.String("type", serverConfig.Type))
+				return fmt.Errorf("unsupported server type: %s", serverConfig.Type)
+			}
 		}
 
-		// create a new gRPC server
-		server := grpc.NewServer()
-		// bind the service implementation to the gRPC server
-		devicemanagementplatformapi.RegisterDeviceManagementPlatformAPIServer(
-			server, serviceContext.ApiService)
-
-		wrappedSrv := &wrappedServer{
-			Server:     server,
-			listerners: listener,
-		}
-		servers = append(servers, wrappedSrv)
 	}
 	slog.InfoContext(ctx, "init servers done")
-
-	return servers, nil
+	return nil
 }
-func addShutdownHook(ctx context.Context, closers []io.Closer) {
+
+func initRpcServer(ctx context.Context, serverConfig *config.ServerConfigEntity, serviceContext *servicecontext.ServiceContext) (*grpc.Server, error) {
+	slog.InfoContext(ctx, "init rpc server", slog.Any("serverConfig", serverConfig))
+	hostAndPort := fmt.Sprintf("%s:%d", serverConfig.Host, serverConfig.Port)
+	listener, err := net.Listen("tcp", hostAndPort)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to listen",
+			slog.String("error", err.Error()))
+		return nil, err
+	}
+	// create a new gRPC server
+	server := grpc.NewServer()
+	// bind the service implementation to the gRPC server
+	devicemanagementplatformapi.RegisterDeviceManagementPlatformAPIServer(
+		server, serviceContext.ApiService)
+
+	go func() {
+		err := server.Serve(listener)
+		if err != nil {
+			slog.ErrorContext(ctx, "failed to serve",
+				slog.String("error", err.Error()))
+			panic(err)
+		}
+	}()
+
+	servicecontext.RegisterShutdownCallback(func(ctx context.Context) error {
+		server.GracefulStop()
+		slog.InfoContext(ctx, "gRPC server stopped gracefully")
+		return nil
+	})
+
+	return server, nil
+}
+
+func initHttpServer(ctx context.Context, serverConfig *config.ServerConfigEntity, serviceContext *servicecontext.ServiceContext) (*http.Server, error) {
+	slog.InfoContext(ctx, "init http server", slog.Any("serverConfig", serverConfig))
+	hostAndPort := fmt.Sprintf("%s:%d", serverConfig.Host, serverConfig.Port)
+	connection, err := grpc.NewClient(hostAndPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		slog.ErrorContext(ctx, "Failed to dial gRPC server", slog.String("error", err.Error()))
+		return nil, err
+	}
+	restGateway := runtime.NewServeMux()
+	err = devicemanagementplatformapi.RegisterDeviceManagementPlatformAPIHandlerClient(ctx, restGateway, devicemanagementplatformapi.NewDeviceManagementPlatformAPIClient(connection))
+	if err != nil {
+		slog.ErrorContext(ctx, "Failed to register REST gateway", slog.String("error", err.Error()))
+		return nil, err
+	}
+
+	server := http.Server{
+		Addr:    hostAndPort,
+		Handler: restGateway,
+	}
+
+	go func() {
+		if err := server.ListenAndServe(); err != nil {
+			slog.ErrorContext(ctx, "Failed to start HTTP gateway", slog.String("error", err.Error()))
+			panic(err)
+		}
+	}()
+
+	servicecontext.RegisterShutdownCallback(func(ctx context.Context) error {
+		err = server.Shutdown(ctx)
+		if err != nil {
+			slog.ErrorContext(ctx, "Failed to shutdown HTTP server gracefully", slog.String("error", err.Error()))
+			return err
+		}
+		slog.InfoContext(ctx, "HTTP server stopped gracefully")
+		return nil
+	})
+
+	return &server, nil
+}
+
+func shutdownGracefully(ctx context.Context, shutdownCallbacks []servicecontext.ShutdownCallback) {
 	slog.InfoContext(ctx, "listening signals...")
 	c := make(chan os.Signal, 1)
 	signal.Notify(
@@ -139,9 +189,9 @@ func addShutdownHook(ctx context.Context, closers []io.Closer) {
 	<-c
 	slog.InfoContext(ctx, "graceful shutdown...")
 
-	for _, closer := range closers {
-		if err := closer.Close(); err != nil {
-			slog.ErrorContext(ctx, "failed to stop closer", slog.Any("error", err))
+	for _, callback := range shutdownCallbacks {
+		if err := callback(ctx); err != nil {
+			slog.ErrorContext(ctx, "failed to execute shutdown callback", slog.Any("error", err))
 		}
 	}
 

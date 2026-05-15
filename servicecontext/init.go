@@ -16,6 +16,10 @@ import (
 
 var serviceLogger *slog.Logger
 
+type ShutdownCallback func(ctx context.Context) error
+
+var shutdownCallbacks []ShutdownCallback
+
 type ServiceContext struct {
 	Logger      *slog.Logger
 	DB          *xorm.Engine
@@ -26,6 +30,14 @@ type ServiceContext struct {
 
 var gServiceCtx *ServiceContext
 var once sync.Once
+
+func RegisterShutdownCallback(callback ShutdownCallback) {
+	shutdownCallbacks = append(shutdownCallbacks, callback)
+}
+
+func GetShutdownCallbacks() []ShutdownCallback {
+	return shutdownCallbacks
+}
 
 func InitServiceContext(ctx context.Context, configEntity *config.ConfigEntity) (
 	serviceCtx *ServiceContext, err error) {
@@ -48,14 +60,13 @@ func InitServiceContext(ctx context.Context, configEntity *config.ConfigEntity) 
 		deviceLogic := logic.NewDeviceLogic(ctx, db, deviceDao)
 		apiService := service.NewApiService(ctx, deviceLogic)
 
-		serviceCtx = &ServiceContext{
+		gServiceCtx = &ServiceContext{
 			Logger:      logger,
 			DB:          db,
 			DeviceDao:   deviceDao,
 			DeviceLogic: deviceLogic,
 			ApiService:  apiService,
 		}
-		gServiceCtx = serviceCtx
 	})
 	if err != nil {
 		slog.ErrorContext(ctx, "init service context failed", slog.Any("error", err))
@@ -63,7 +74,7 @@ func InitServiceContext(ctx context.Context, configEntity *config.ConfigEntity) 
 
 	}
 	slog.InfoContext(ctx, "init service context done")
-	return serviceCtx, err
+	return gServiceCtx, err
 
 }
 
@@ -101,6 +112,10 @@ func initDB(ctx context.Context, dbConfig *config.DBConfigEntity,
 		slog.ErrorContext(ctx, "Failed to ping database", slog.Any("error", err))
 		return nil, err
 	}
+
+	RegisterShutdownCallback(func(ctx context.Context) error {
+		return engine.Close()
+	})
 
 	return engine, nil
 }
