@@ -66,7 +66,14 @@ func main() {
 
 	// start server
 	for _, srv := range servers {
-		go srv.Serve(srv.listerners)
+		go func() {
+			err := srv.Serve(srv.listerners)
+			if err != nil {
+				slog.ErrorContext(ctx, "failed to serve",
+					slog.String("error", err.Error()))
+				panic(err)
+			}
+		}()
 	}
 
 	closers := make([]io.Closer, 0)
