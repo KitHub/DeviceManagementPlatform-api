@@ -1,3 +1,11 @@
+servers:
+  - host: localhost
+    port: 8080
+    type: "http"
+  - host: localhost
+    port: 8081
+    type: "rpc"
+
 log:
   log_level: "debug" # 日志级别（debug, info, warn, error）
   filename: "./logs/dmp-api.log" # 日志文件路径

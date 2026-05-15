@@ -1,5 +1,11 @@
 package config
 
+type ServerConfigEntity struct {
+	Host string `yaml:"host"` // 服务器主机地址
+	Port int    `yaml:"port"` // 服务器端口号
+	Type string `yaml:"type"` // 服务器类型
+}
+
 type DBConfigEntity struct {
 	// 驱动名称,如：mysql、mssql等，参见 https://github.com/xormplus/xorm/blob/master/dialects/dialect.go#L196
 	DriverName      string `yaml:"driver_name"`
@@ -22,6 +28,7 @@ type LogConfigEntity struct {
 }
 
 type ConfigEntity struct {
-	LogConfig *LogConfigEntity `yaml:"log"`
-	DBConfig  *DBConfigEntity  `yaml:"db"`
+	LogConfig *LogConfigEntity      `yaml:"log"`
+	DBConfig  *DBConfigEntity       `yaml:"db"`
+	Servers   []*ServerConfigEntity `yaml:"servers"`
 }

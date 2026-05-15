@@ -2,9 +2,12 @@ package servicecontext
 
 import (
 	"DeviceManagementPlatform-api/config"
+	"DeviceManagementPlatform-api/dao"
 	"DeviceManagementPlatform-api/logic"
+	"DeviceManagementPlatform-api/service"
 	"context"
 	"log/slog"
+	"sync"
 	"time"
 
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -16,32 +19,52 @@ var serviceLogger *slog.Logger
 type ServiceContext struct {
 	Logger      *slog.Logger
 	DB          *xorm.Engine
+	DeviceDao   *dao.DeviceDAO
 	DeviceLogic *logic.DeviceLogic
+	ApiService  *service.ApiService
 }
 
-var serviceCtx *ServiceContext
+var gServiceCtx *ServiceContext
+var once sync.Once
 
-func InitServiceContext(ctx context.Context, configEntity config.ConfigEntity) (
+func InitServiceContext(ctx context.Context, configEntity *config.ConfigEntity) (
 	serviceCtx *ServiceContext, err error) {
-	logger, err := initLog(ctx, configEntity.LogConfig)
-	if err != nil {
-		slog.ErrorContext(ctx, "init log failed", slog.Any("error", err))
-		return nil, err
-	}
-	db, err := initDB(ctx, configEntity.DBConfig, logger)
-	if err != nil {
-		slog.ErrorContext(ctx, "init db failed", slog.Any("error", err))
-		return nil, err
-	}
+	slog.InfoContext(ctx, "init service context")
+	once.Do(func() {
+		logger, innerErr := initLog(ctx, configEntity.LogConfig)
+		if innerErr != nil {
+			slog.ErrorContext(ctx, "init log failed", slog.Any("error", innerErr))
+			err = innerErr
+			return
+		}
+		db, innerErr := initDB(ctx, configEntity.DBConfig, logger)
+		if innerErr != nil {
+			slog.ErrorContext(ctx, "init db failed", slog.Any("error", innerErr))
+			err = innerErr
+			return
+		}
 
-	deviceLogic := logic.NewDeviceLogic(ctx, db)
+		deviceDao := dao.NewDeviceDAO(ctx)
+		deviceLogic := logic.NewDeviceLogic(ctx, db, deviceDao)
+		apiService := service.NewApiService(ctx, deviceLogic)
 
-	serviceCtx = &ServiceContext{
-		Logger:      logger,
-		DB:          db,
-		DeviceLogic: deviceLogic,
+		serviceCtx = &ServiceContext{
+			Logger:      logger,
+			DB:          db,
+			DeviceDao:   deviceDao,
+			DeviceLogic: deviceLogic,
+			ApiService:  apiService,
+		}
+		gServiceCtx = serviceCtx
+	})
+	if err != nil {
+		slog.ErrorContext(ctx, "init service context failed", slog.Any("error", err))
+		return nil, err
+
 	}
-	return serviceCtx, nil
+	slog.InfoContext(ctx, "init service context done")
+	return serviceCtx, err
+
 }
 
 func initLog(ctx context.Context, logConfig *config.LogConfigEntity) (

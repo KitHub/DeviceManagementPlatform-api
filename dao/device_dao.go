@@ -1,4 +1,4 @@
-package db
+package dao
 
 import (
 	"context"
@@ -17,7 +17,7 @@ type DeviceDAO struct {
 var deviceDAO *DeviceDAO
 var once sync.Once
 
-func NewDeviceDAO(dbEngine *xorm.Engine) *DeviceDAO {
+func NewDeviceDAO(ctx context.Context) *DeviceDAO {
 	once.Do(func() {
 		deviceDAO = &DeviceDAO{}
 	})

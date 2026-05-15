@@ -1,7 +1,7 @@
 package logic
 
 import (
-	"DeviceManagementPlatform-api/db"
+	"DeviceManagementPlatform-api/dao"
 	"DeviceManagementPlatform-api/wrapper"
 	"context"
 	"log/slog"
@@ -13,26 +13,27 @@ import (
 
 type DeviceLogic struct {
 	dbEngine  *xorm.Engine
-	deviceDao *db.DeviceDAO
+	deviceDao *dao.DeviceDAO
 }
 
 var deviceLogic *DeviceLogic
 var once sync.Once
 
-func NewDeviceLogic(ctx context.Context, dbEngine *xorm.Engine) *DeviceLogic {
+func NewDeviceLogic(ctx context.Context, dbEngine *xorm.Engine,
+	deviceDao *dao.DeviceDAO) *DeviceLogic {
 	once.Do(func() {
 		deviceLogic = &DeviceLogic{
 			dbEngine:  dbEngine,
-			deviceDao: db.NewDeviceDAO(dbEngine),
+			deviceDao: deviceDao,
 		}
 	})
 	return deviceLogic
 }
 
 func (l *DeviceLogic) RegisterDevice(ctx context.Context,
-	deviceNo string) (deviceDO *db.DeviceDO, err error) {
+	deviceNo string) (deviceDO *dao.DeviceDO, err error) {
 	now := time.Now()
-	deviceDO = &db.DeviceDO{
+	deviceDO = &dao.DeviceDO{
 		DeviceNo:     deviceNo,
 		CreateTime:   now,
 		UpdateTime:   now,
@@ -51,9 +52,9 @@ func (l *DeviceLogic) RegisterDevice(ctx context.Context,
 }
 
 func (l *DeviceLogic) GetDeviceByNo(ctx context.Context,
-	deviceNo string) (deviceDO *db.DeviceDO, err error) {
+	deviceNo string) (deviceDO *dao.DeviceDO, err error) {
 	slog.InfoContext(ctx, "query device", slog.Any("deviceNo", deviceNo))
-	deviceDO = &db.DeviceDO{
+	deviceDO = &dao.DeviceDO{
 		DeviceNo: deviceNo,
 	}
 	err = wrapper.TrsactionWrapper(ctx, l.dbEngine,
@@ -67,9 +68,9 @@ func (l *DeviceLogic) GetDeviceByNo(ctx context.Context,
 }
 
 func (l *DeviceLogic) GetDeviceById(ctx context.Context,
-	deviceId int64) (deviceDO *db.DeviceDO, err error) {
+	deviceId int64) (deviceDO *dao.DeviceDO, err error) {
 	slog.InfoContext(ctx, "query device", slog.Any("deviceId", deviceId))
-	deviceDO = &db.DeviceDO{
+	deviceDO = &dao.DeviceDO{
 		Id: deviceId,
 	}
 	err = wrapper.TrsactionWrapper(ctx, l.dbEngine,
