@@ -10,6 +10,12 @@ import (
 	"sync"
 	"time"
 
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/sdk/resource"
+	"go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"xorm.io/xorm"
 )
@@ -21,11 +27,12 @@ type ShutdownCallback func(ctx context.Context) error
 var shutdownCallbacks []ShutdownCallback
 
 type ServiceContext struct {
-	Logger      *slog.Logger
-	DB          *xorm.Engine
-	DeviceDao   *dao.DeviceDAO
-	DeviceLogic *logic.DeviceLogic
-	ApiService  *service.ApiService
+	Logger         *slog.Logger
+	DB             *xorm.Engine
+	DeviceDao      *dao.DeviceDAO
+	DeviceLogic    *logic.DeviceLogic
+	ApiService     *service.ApiService
+	TracerProvider *trace.TracerProvider
 }
 
 var gServiceCtx *ServiceContext
@@ -49,6 +56,7 @@ func InitServiceContext(ctx context.Context, configEntity *config.ConfigEntity) 
 			err = innerErr
 			return
 		}
+
 		db, innerErr := initDB(ctx, configEntity.DBConfig, logger)
 		if innerErr != nil {
 			slog.ErrorContext(ctx, "init db failed", slog.Any("error", innerErr))
@@ -56,16 +64,27 @@ func InitServiceContext(ctx context.Context, configEntity *config.ConfigEntity) 
 			return
 		}
 
+		tracerProvider, innerErr := initTracer(ctx, configEntity.Server, configEntity.TraceConfig)
+		if innerErr != nil {
+			slog.ErrorContext(ctx, "init tracer failed", slog.Any("error", innerErr))
+			err = innerErr
+			return
+		}
+		RegisterShutdownCallback(func(ctx context.Context) error {
+			return tracerProvider.Shutdown(ctx)
+		})
+
 		deviceDao := dao.NewDeviceDAO(ctx)
 		deviceLogic := logic.NewDeviceLogic(ctx, db, deviceDao)
 		apiService := service.NewApiService(ctx, deviceLogic)
 
 		gServiceCtx = &ServiceContext{
-			Logger:      logger,
-			DB:          db,
-			DeviceDao:   deviceDao,
-			DeviceLogic: deviceLogic,
-			ApiService:  apiService,
+			Logger:         logger,
+			DB:             db,
+			DeviceDao:      deviceDao,
+			DeviceLogic:    deviceLogic,
+			ApiService:     apiService,
+			TracerProvider: tracerProvider,
 		}
 	})
 	if err != nil {
@@ -118,4 +137,40 @@ func initDB(ctx context.Context, dbConfig *config.DBConfigEntity,
 	})
 
 	return engine, nil
+}
+
+// newJaegerTraceProvider creates a new OpenTelemetry TracerProvider with a Jaeger exporter.
+func newJaegerTraceProvider(ctx context.Context, serviceName string, traceConfig *config.TraceConfigEntity) (
+	*trace.TracerProvider, error) {
+	exp, err := otlptracegrpc.New(ctx,
+		otlptracegrpc.WithEndpoint(traceConfig.ExporterEndpoint),
+		otlptracegrpc.WithInsecure())
+	if err != nil {
+		return nil, err
+	}
+	res, err := resource.New(ctx, resource.WithAttributes(semconv.ServiceName(serviceName)))
+	if err != nil {
+		return nil, err
+	}
+	traceProvider := trace.NewTracerProvider(
+		trace.WithResource(res),
+		trace.WithSampler(trace.TraceIDRatioBased(traceConfig.SamplerRatio)),
+		trace.WithBatcher(exp, trace.WithBatchTimeout(time.Second)),
+	)
+	return traceProvider, nil
+}
+
+func initTracer(ctx context.Context, serverConfig *config.ServerConfigEntity,
+	traceConfig *config.TraceConfigEntity) (*trace.TracerProvider, error) {
+	slog.InfoContext(ctx, "init tracer", slog.Any("traceConfig", traceConfig))
+	tp, err := newJaegerTraceProvider(ctx, serverConfig.Name, traceConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(
+		propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}),
+	)
+	return tp, nil
 }

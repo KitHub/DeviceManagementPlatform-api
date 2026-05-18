@@ -15,6 +15,7 @@ import (
 
 	"github.com/KitHub/protocols/devicemanagementplatformapi"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -72,7 +73,7 @@ func initServer(ctx context.Context, serviceConfig *config.ConfigEntity,
 	serviceContext *servicecontext.ServiceContext) (err error) {
 
 	slog.InfoContext(ctx, "init servers")
-	for _, serverConfig := range serviceConfig.Servers {
+	for _, serverConfig := range serviceConfig.Server.Services {
 		switch serverConfig.Type {
 		case "rpc":
 			{
@@ -105,7 +106,7 @@ func initServer(ctx context.Context, serviceConfig *config.ConfigEntity,
 	return nil
 }
 
-func initRpcServer(ctx context.Context, serverConfig *config.ServerConfigEntity, serviceContext *servicecontext.ServiceContext) (*grpc.Server, error) {
+func initRpcServer(ctx context.Context, serverConfig *config.ServiceConfigEntity, serviceContext *servicecontext.ServiceContext) (*grpc.Server, error) {
 	slog.InfoContext(ctx, "init rpc server", slog.Any("serverConfig", serverConfig))
 	hostAndPort := fmt.Sprintf("%s:%d", serverConfig.Host, serverConfig.Port)
 	listener, err := net.Listen("tcp", hostAndPort)
@@ -115,7 +116,9 @@ func initRpcServer(ctx context.Context, serverConfig *config.ServerConfigEntity,
 		return nil, err
 	}
 	// create a new gRPC server
-	server := grpc.NewServer()
+	server := grpc.NewServer(
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
+	)
 	// bind the service implementation to the gRPC server
 	devicemanagementplatformapi.RegisterDeviceManagementPlatformAPIServer(
 		server, serviceContext.ApiService)
@@ -138,7 +141,7 @@ func initRpcServer(ctx context.Context, serverConfig *config.ServerConfigEntity,
 	return server, nil
 }
 
-func initHttpServer(ctx context.Context, serverConfig *config.ServerConfigEntity, serviceContext *servicecontext.ServiceContext) (*http.Server, error) {
+func initHttpServer(ctx context.Context, serverConfig *config.ServiceConfigEntity, serviceContext *servicecontext.ServiceContext) (*http.Server, error) {
 	slog.InfoContext(ctx, "init http server", slog.Any("serverConfig", serverConfig))
 	hostAndPort := fmt.Sprintf("%s:%d", serverConfig.Host, serverConfig.Port)
 	connection, err := grpc.NewClient(hostAndPort, grpc.WithTransportCredentials(insecure.NewCredentials()))

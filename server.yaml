@@ -1,10 +1,12 @@
-servers:
-  - host: localhost
-    port: 8080
-    type: "http"
-  - host: localhost
-    port: 8081
-    type: "rpc"
+server:
+  name: "DeviceManagementPlatformAPI" # 服务名称
+  services:
+    - host: localhost
+      port: 8080
+      type: "http"
+    - host: localhost
+      port: 8081
+      type: "rpc"
 
 log:
   log_level: "debug" # 日志级别（debug, info, warn, error）
@@ -22,3 +24,7 @@ db:
   max_open_conns: 100 # 连接池中最大打开连接数
   conn_max_lifetime: 3600 # 连接最大生命周期（以秒为单位）
 
+trace:
+  exporter_endpoint: "localhost:4317" # OpenTelemetry Collector 的地址
+  sampler_type: "parentbased_traceidratio" # 采样器类型（如 parentbased_traceidratio）
+  sampler_arg: "0.1" # 采样器参数（如采样率） 
