@@ -8,10 +8,6 @@ import (
 
 	"buf.build/go/protovalidate"
 	"github.com/KitHub/protocols/devicemanagementplatformapi"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/trace"
-	"google.golang.org/grpc/metadata"
 )
 
 type ApiService struct {
@@ -108,16 +104,4 @@ func (a *ApiService) RegisterDevice(ctx context.Context, req *devicemanagementpl
 	}
 	slog.InfoContext(ctx, "Successfully registered device", slog.Any("device", deviceInfo))
 	return rsp, nil
-}
-
-func createMetadata(ctx context.Context, tracer trace.TracerProvider) *metadata.MD {
-	md, _ := metadata.FromIncomingContext(ctx)
-	_, span := otel.Tracer("test").Start(ctx, "SayHello",
-		trace.WithAttributes(
-			attribute.StringSlice("client-id", md.Get("client-id")),
-			attribute.StringSlice("user-id", md.Get("user-id")),
-		),
-	)
-	defer span.End()
-	return md
 }
