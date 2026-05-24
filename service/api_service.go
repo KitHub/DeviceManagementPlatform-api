@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"sync"
 
-	"buf.build/go/protovalidate"
 	"github.com/KitHub/protocols/devicemanagementplatformapi"
 )
 
@@ -31,10 +30,7 @@ func NewApiService(ctx context.Context,
 // QueryDeviceById implements [devicemanagementplatformapi.DeviceManagementPlatformAPIServer].
 func (a *ApiService) QueryDeviceById(ctx context.Context, req *devicemanagementplatformapi.QueryDeviceByIdRequest) (rsp *devicemanagementplatformapi.QueryDeviceByIdResponse, err error) {
 	slog.InfoContext(ctx, "Querying device by ID", slog.Any("deviceId", req.GetDeviceId()))
-	if err = protovalidate.Validate(req); err != nil {
-		slog.ErrorContext(ctx, "Validation failed for QueryDeviceByIdRequest", "error", err)
-		return nil, err
-	}
+
 	deviceInfo, err := a.deviceLogic.GetDeviceById(ctx, req.GetDeviceId())
 	if err != nil {
 		slog.ErrorContext(ctx, "Failed to query device by ID", slog.Any("error", err))
@@ -57,10 +53,7 @@ func (a *ApiService) QueryDeviceById(ctx context.Context, req *devicemanagementp
 // QueryDeviceByNo implements [devicemanagementplatformapi.DeviceManagementPlatformAPIServer].
 func (a *ApiService) QueryDeviceByNo(ctx context.Context, req *devicemanagementplatformapi.QueryDeviceByNoRequest) (rsp *devicemanagementplatformapi.QueryDeviceByNoResponse, err error) {
 	slog.InfoContext(ctx, "Querying device by NO", slog.Any("deviceNo", req.GetDeviceNo()))
-	if err = protovalidate.Validate(req); err != nil {
-		slog.ErrorContext(ctx, "Validation failed for QueryDeviceByNoRequest", "error", err)
-		return nil, err
-	}
+
 	deviceInfo, err := a.deviceLogic.GetDeviceByNo(ctx, req.GetDeviceNo())
 	if err != nil {
 		slog.ErrorContext(ctx, "Failed to query device by NO", slog.Any("error", err))
@@ -83,10 +76,7 @@ func (a *ApiService) QueryDeviceByNo(ctx context.Context, req *devicemanagementp
 // RegisterDevice implements [devicemanagementplatformapi.DeviceManagementPlatformAPIServer].
 func (a *ApiService) RegisterDevice(ctx context.Context, req *devicemanagementplatformapi.RegisterDeviceRequest) (rsp *devicemanagementplatformapi.RegisterDeviceResponse, err error) {
 	slog.InfoContext(ctx, "Registering device", slog.Any("deviceNo", req.GetDeviceNo()))
-	if err = protovalidate.Validate(req); err != nil {
-		slog.ErrorContext(ctx, "Validation failed for RegisterDeviceRequest", "error", err)
-		return nil, err
-	}
+
 	deviceInfo, err := a.deviceLogic.RegisterDevice(ctx, req.GetDeviceNo())
 	if err != nil {
 		slog.ErrorContext(ctx, "Failed to register device", slog.Any("error", err))
