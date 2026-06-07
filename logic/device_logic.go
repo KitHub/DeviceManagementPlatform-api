@@ -41,7 +41,7 @@ func (l *DeviceLogic) RegisterDevice(ctx context.Context,
 	}
 	slog.InfoContext(ctx, "register device", slog.Any("device", deviceDO))
 
-	err = wrapper.TrsactionWrapper(ctx, l.dbEngine,
+	err = wrapper.TransactionWrapper(ctx, l.dbEngine,
 		func(session *xorm.Session) error {
 			deviceDO, err = l.deviceDao.InsertDevice(ctx, session, deviceDO)
 			return err
@@ -57,7 +57,7 @@ func (l *DeviceLogic) GetDeviceByNo(ctx context.Context,
 	deviceDO = &dao.DeviceDO{
 		DeviceNo: deviceNo,
 	}
-	err = wrapper.TrsactionWrapper(ctx, l.dbEngine,
+	err = wrapper.TransactionWrapper(ctx, l.dbEngine,
 		func(session *xorm.Session) error {
 			deviceDO, err = l.deviceDao.QueryDeviceByDeviceNo(
 				ctx, session, deviceNo)
@@ -73,7 +73,7 @@ func (l *DeviceLogic) GetDeviceById(ctx context.Context,
 	deviceDO = &dao.DeviceDO{
 		Id: deviceId,
 	}
-	err = wrapper.TrsactionWrapper(ctx, l.dbEngine,
+	err = wrapper.TransactionWrapper(ctx, l.dbEngine,
 		func(session *xorm.Session) error {
 			deviceDO, err = l.deviceDao.QueryDeviceByDeviceId(
 				ctx, session, deviceId)
