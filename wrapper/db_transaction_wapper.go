@@ -7,9 +7,9 @@ import (
 	"xorm.io/xorm"
 )
 
-// TrsactionWrapper is a wrapper for database transaction. It will begin a transaction, execute the given function, and commit or rollback the transaction based on the result of the function.
-// NOTE: netsed transaction is not supported, which means that if the given function calls TrsactionWrapper again, the inner transaction will not be executed in the existed transaction, but will start a new transaction.
-func TrsactionWrapper(ctx context.Context, dbEngine *xorm.Engine,
+// TransactionWrapper is a wrapper for database transaction. It will begin a transaction, execute the given function, and commit or rollback the transaction based on the result of the function.
+// NOTE: nested transaction is not supported, which means that if the given function calls TransactionWrapper again, the inner transaction will not be executed in the existed transaction, but will start a new transaction.
+func TransactionWrapper(ctx context.Context, dbEngine *xorm.Engine,
 	fn func(session *xorm.Session) error) (err error) {
 	panicked := true
 
